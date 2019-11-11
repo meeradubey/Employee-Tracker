@@ -1,5 +1,6 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
+require("console.table");
 
 // create the connection information for the sql database
 var connection = mysql.createConnection({
@@ -16,17 +17,29 @@ var connection = mysql.createConnection({
   database: "employeeTracker_DB"
 });
 
+if (process.env.JAWSDB_URL) {
+    connection = mysql.createConnection(process.env.JAWSDB_URL);
+} else {
+    connection = mysql.createConnection(process.env.JAWSDB_URL);
+        host: 'localhost',
+        user: 'root',
+        password: 'meeradubey23',
+        database: 'employeeTracker_db'
+    });
+};
 // connect to the mysql server and sql database
 connection.connect(function(err) {
-  if (err) throw err;
+  if (err){
+      console.log("err connecting to db: " +err.stack)
+  }
   // run the start function after the connection is made to prompt the user
   start();
-  addRole();
+  //addRole();
 });
 
 // function which prompts the user for what action they should take
 function start() {
-  inquirer
+  return inquirer
     .prompt({
       name: "MainChoices",
       type: "list",
@@ -35,11 +48,14 @@ function start() {
     })
     .then(function(answer) {
       // based on their answer, either call the bid or the post functions
-      if (answer.postOrBid === "ADD") {
-        ADD();
+      if (answer.MainChoices === "ADD") {
+        addRole();
       }
-      else if(answer.postOrBid === "VIEW") {
-        VIEW();
+      else if(answer.MainChoices === "VIEW") {
+        viewEmployees();
+      }
+      else if(answer.MainChoices === "UPDATE"){
+          updateEmployee();
       } else{
         connection.end();
       }
@@ -84,27 +100,28 @@ function start() {
 }
 
 function viewEmployees() {
-  connection.query("SELECT * FROM employee", function (err, results) {
+  connection.query("SELECT employees.id, employees.first_name, employees.last_name, roles.title, departments.name AS department, roles.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager FROM employees LEFT JOIN roles on employees.role_id=roles.id LEFT JOin departments on roles.department_id = departments.id LEFT JOIN employees manager on manager.id = employees.manager_id ", function (err, results) {
       if (err) throw err;
-      inquirer
-          .prompt([
-              {
-                  name: "employees",
-                  type: "list",
-                  choices: function () {
-                      var choiceArray = [];
-                      for (var i = 0; i < results.length; i++) {
-                          choiceArray.push(results[i].last_name);
-                      }
-                      return choiceArray;
-                  },
-                  message: "What employee would you like to update?"
-              }
-          ])
-          .then(function (answer) {
-              console.log(answer.employees)
-              updateEmployee(answer.employees)
-          })
+      console.table(results)
+    //   inquirer
+    //       .prompt([
+    //           {
+    //               name: "employees",
+    //               type: "list",
+    //               choices: function () {
+    //                   var choiceArray = [];
+    //                   for (var i = 0; i < results.length; i++) {
+    //                       choiceArray.push(results[i].last_name);
+    //                   }
+    //                   return choiceArray;
+    //               },
+    //               message: "What employee would you like to update?"
+    //           }
+    //       ])
+    //       .then(function (answer) {
+    //           console.log(answer.employees)
+    //           updateEmployee(answer.employees)
+    //       })
   })
 }
 function updateEmployee(lastName) {

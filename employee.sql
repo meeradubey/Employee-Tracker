@@ -9,7 +9,6 @@ CREATE TABLE departments(
   
   PRIMARY KEY (id)
 );
-
 CREATE TABLE roles(
     id INT NOT NULL AUTO_INCREMENT,
     title VARCHAR(30) NOT NULL,
