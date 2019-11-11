@@ -17,16 +17,6 @@ var connection = mysql.createConnection({
   database: "employeeTracker_DB"
 });
 
-if (process.env.JAWSDB_URL) {
-    connection = mysql.createConnection(process.env.JAWSDB_URL);
-} else {
-    connection = mysql.createConnection(process.env.JAWSDB_URL);
-        host: 'localhost',
-        user: 'root',
-        password: 'meeradubey23',
-        database: 'employeeTracker_db'
-    });
-};
 // connect to the mysql server and sql database
 connection.connect(function(err) {
   if (err){
